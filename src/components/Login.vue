@@ -38,6 +38,7 @@
 
 <script>
 import axios from 'axios'
+import { API_ENDPOINTS } from '../config'
 
 export default {
   name: 'LoginForm',
@@ -48,21 +49,61 @@ export default {
         password: ''
       },
       loading: false,
-      error: null
+      error: null,
+      currentError: null // Store the raw error object to re-localize when language changes
     }
   },
+  mounted() {
+    // Watch for language changes to update error messages
+    this.$watch(
+      () => this.$i18n.locale,
+      () => {
+        if (this.currentError) {
+          this.updateErrorMessage()
+        }
+      }
+    )
+  },
   methods: {
+    updateErrorMessage() {
+      if (this.currentError) {
+        if (typeof this.currentError === 'object') {
+          this.error = this.currentError[this.$i18n.locale] || this.currentError.en || this.currentError.es
+        } else {
+          this.error = this.currentError
+        }
+      }
+    },
     async handleLogin() {
       this.loading = true
       this.error = null
+      this.currentError = null
       try {
-        const response = await axios.post('http://localhost:8000/api/login', this.form)
-        // Store token in localStorage
+        const response = await axios.post(API_ENDPOINTS.LOGIN, this.form)
+        // Store token in localStorage as Bearer token
         localStorage.setItem('token', response.data.token)
         // Redirect to home
         this.$router.push('/')
       } catch (error) {
-        this.error = error.response?.data?.message || 'Login failed'
+        const response = error.response?.data
+        if (response?.errors && typeof response.errors === 'object') {
+          const firstField = Object.keys(response.errors)[0]
+          const firstError = response.errors[firstField]
+
+          // Store the raw error object to re-localize when language changes
+          this.currentError = firstError
+
+          if (firstError && typeof firstError === 'object') {
+            this.error = firstError[this.$i18n.locale] || firstError.en || firstError.es || 'Validation error'
+          } else if (typeof firstError === 'string') {
+            this.error = firstError
+          } else {
+            this.error = 'Validation error'
+          }
+        } else {
+          this.error = response?.message || 'Login failed'
+          this.currentError = null
+        }
       } finally {
         this.loading = false
       }

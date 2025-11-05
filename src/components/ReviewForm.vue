@@ -44,6 +44,7 @@
 
 <script>
 import axios from 'axios'
+import { API_ENDPOINTS } from '../config'
 
 export default {
   name: 'ReviewForm',
@@ -96,11 +97,11 @@ export default {
         }
 
         if (this.isEditing) {
-          await axios.put(`http://localhost:8000/api/reviews/${this.existingReview.id}`, reviewData, {
+          await axios.put(`${API_ENDPOINTS.REVIEWS}/${this.existingReview.id}`, reviewData, {
             headers: { Authorization: `Bearer ${token}` }
           })
         } else {
-          await axios.post('http://localhost:8000/api/reviews', reviewData, {
+          await axios.post(API_ENDPOINTS.REVIEWS, reviewData, {
             headers: { Authorization: `Bearer ${token}` }
           })
         }
@@ -154,15 +155,18 @@ export default {
   font-size: 2rem;
   color: #3a4553;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .star.active {
   color: #00d4aa;
+  filter: drop-shadow(0 0 10px rgba(0, 212, 170, 0.5));
 }
 
 .star:hover {
   color: #00b894;
+  transform: scale(1.1);
 }
 
 .rating-text {
@@ -173,19 +177,23 @@ export default {
 
 .form-textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #3a4553;
-  border-radius: 4px;
-  background-color: #1a202c;
+  padding: 1rem 1.25rem;
+  border: 2px solid #3a4553;
+  border-radius: 12px;
+  background-color: rgba(26, 32, 44, 0.8);
   color: #fff;
   font-size: 1rem;
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .form-textarea:focus {
   outline: none;
   border-color: #00d4aa;
+  box-shadow: 0 0 20px rgba(0, 212, 170, 0.2);
+  background-color: rgba(26, 32, 44, 0.95);
 }
 
 .form-textarea::placeholder {
@@ -200,31 +208,36 @@ export default {
 }
 
 .cancel-btn, .submit-btn {
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2rem;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: bold;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .cancel-btn {
-  background-color: #3a4553;
+  background: linear-gradient(135deg, #3a4553 0%, #4a5563 100%);
   color: #9ab;
 }
 
 .cancel-btn:hover {
-  background-color: #4a5563;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 85, 99, 0.3);
 }
 
 .submit-btn {
-  background-color: #00d4aa;
+  background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
   color: #14181c;
+  box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #00b894;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 212, 170, 0.4);
 }
 
 .submit-btn:disabled {

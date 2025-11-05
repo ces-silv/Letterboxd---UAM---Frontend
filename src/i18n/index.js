@@ -5,7 +5,8 @@ const messages = {
     nav: {
       home: 'Home',
       login: 'Login',
-      register: 'Register'
+      register: 'Register',
+      profile: 'Profile'
     },
     header: {
       title: 'Letterboxd UAM',
@@ -23,6 +24,7 @@ const messages = {
       },
       register: {
         title: 'Register',
+        username: 'Username',
         name: 'Name',
         email: 'Email',
         password: 'Password',
@@ -40,8 +42,8 @@ const messages = {
       duration: 'Duration',
       averageRating: 'Average Rating',
       totalReviews: 'Total Reviews',
-      writeReview: 'Write Review',
-      editReview: 'Edit Review',
+      writeReview: 'WRITE REVIEW',
+      editReview: 'EDIT REVIEW',
       cast: 'Cast',
       statistics: 'Statistics',
       reviews: 'Reviews',
@@ -63,13 +65,31 @@ const messages = {
       loading: 'Loading movies...',
       error: 'Error loading movies',
       reviews: 'reviews'
+    },
+    profile: {
+      title: 'My Profile',
+      loading: 'Loading profile...',
+      edit: 'Edit',
+      cancel: 'Cancel',
+      save: 'Save',
+      saving: 'Saving...',
+      editProfile: 'Edit Profile',
+      personalInfo: 'Personal Information',
+      name: 'Name',
+      username: 'Username',
+      email: 'Email',
+      memberSince: 'Member since',
+      activity: 'Activity',
+      reviewsWritten: 'Reviews written',
+      averageRating: 'Average rating'
     }
   },
   es: {
     nav: {
       home: 'Inicio',
       login: 'Iniciar Sesión',
-      register: 'Registrarse'
+      register: 'Registrarse',
+      profile: 'Perfil'
     },
     header: {
       title: 'Letterboxd UAM',
@@ -88,6 +108,7 @@ const messages = {
       register: {
         title: 'Registrarse',
         name: 'Nombre',
+        username: 'Usuario',
         email: 'Correo electrónico',
         password: 'Contraseña',
         confirmPassword: 'Confirmar Contraseña',
@@ -127,6 +148,23 @@ const messages = {
       loading: 'Cargando películas...',
       error: 'Error al cargar películas',
       reviews: 'reseñas'
+    },
+    profile: {
+      title: 'Mi Perfil',
+      loading: 'Cargando perfil...',
+      edit: 'Editar',
+      cancel: 'Cancelar',
+      save: 'Guardar',
+      saving: 'Guardando...',
+      editProfile: 'Editar Perfil',
+      personalInfo: 'Información Personal',
+      name: 'Nombre',
+      username: 'Usuario',
+      email: 'Correo electrónico',
+      memberSince: 'Miembro desde',
+      activity: 'Actividad',
+      reviewsWritten: 'Reseñas escritas',
+      averageRating: 'Calificación promedio'
     }
   }
 }

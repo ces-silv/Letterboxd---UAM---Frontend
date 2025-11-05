@@ -9,6 +9,7 @@
           <router-link to="/" class="nav-link">{{ $t('nav.home') }}</router-link>
           <router-link to="/login" class="nav-link">{{ $t('nav.login') }}</router-link>
           <router-link to="/register" class="nav-link">{{ $t('nav.register') }}</router-link>
+          <router-link to="/profile" class="nav-link">{{ $t('nav.profile') }}</router-link>
           <div class="language-selector">
             <button @click="setLanguage('en')" :class="{ active: $i18n.locale === 'en' }" class="lang-btn">EN</button>
             <button @click="setLanguage('es')" :class="{ active: $i18n.locale === 'es' }" class="lang-btn">ES</button>
@@ -22,23 +23,26 @@
 
     <main v-else class="main-content">
       <div v-if="loading" class="loading">
-        {{ $t('common.loading') }}
+        <div class="loading-bar-container">
+          <div class="loading-bar"></div>
+        </div>
+        <p class="loading-text">{{ $t('common.loading') }}</p>
       </div>
       <div v-else-if="error" class="error">
         {{ $t('common.error') }}: {{ error }}
       </div>
       <div v-else class="movies-grid">
-        <router-link v-for="movie in movies" :key="movie.id" :to="`/movie/${movie.id}`" class="movie-card-link">
+        <router-link v-for="movie in movies" :key="movie.id" :to="{ name: 'MovieDetail', params: { id: movie.id } }" class="movie-card-link">
           <div class="movie-card">
-            <img :src="movie.poster_path" :alt="movie.title" class="movie-poster" />
+            <img :src="movie.poster_path || STORAGE_URLS.NO_PHOTO" :alt="movie.title" class="movie-poster" />
             <div class="movie-info">
               <h3>{{ movie.title }}</h3>
               <p class="release-date">{{ formatDate(movie.release_date) }}</p>
               <div class="rating">
-                <span class="stars">{{ '★'.repeat(Math.round(movie.reviews_summary.average_rating)) }}</span>
-                <span class="rating-text">{{ movie.reviews_summary.average_rating }}/5</span>
+                <span class="stars">{{ '★'.repeat(Math.round(movie.reviews_summary?.average_rating || 0)) }}</span>
+                <span class="rating-text">{{ movie.reviews_summary?.average_rating || 'N/A' }}/5</span>
               </div>
-              <p class="review-count">{{ movie.reviews_summary.count }} {{ $t('common.reviews') }}</p>
+              <p class="review-count">{{ movie.reviews_summary?.count || 0 }} {{ $t('common.reviews') }}</p>
             </div>
           </div>
         </router-link>
@@ -49,6 +53,7 @@
 
 <script>
 import axios from 'axios'
+import { API_ENDPOINTS, STORAGE_URLS } from './config'
 
 export default {
   name: 'App',
@@ -56,7 +61,8 @@ export default {
     return {
       movies: [],
       loading: true,
-      error: null
+      error: null,
+      STORAGE_URLS
     }
   },
   mounted() {
@@ -65,8 +71,8 @@ export default {
   methods: {
     async fetchPopularMovies() {
       try {
-        const response = await axios.get('http://localhost:8000/api/movies/popular?limit=20&include=director')
-        this.movies = response.data
+        const response = await axios.get(`${API_ENDPOINTS.MOVIES}?per_page=20&include=director`)
+        this.movies = response.data.data
         this.loading = false
       } catch (error) {
         this.error = error.message
@@ -93,9 +99,11 @@ export default {
 }
 
 body {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background-color: #14181c;
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: linear-gradient(135deg, #0f1419 0%, #1a202c 50%, #14181c 100%);
+  background-attachment: fixed;
   color: #fff;
+  min-height: 100vh;
 }
 
 #app {
@@ -103,11 +111,12 @@ body {
 }
 
 .header {
-  background: linear-gradient(135deg, #2c3440 0%, #1a202c 100%);
+  background: linear-gradient(135deg, rgba(44, 52, 64, 0.95) 0%, rgba(26, 32, 44, 0.95) 100%);
   padding: 2rem 0;
-  border-bottom: 1px solid #3a4553;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(58, 69, 83, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .header-content {
@@ -220,11 +229,62 @@ body {
 .loading, .error {
   text-align: center;
   font-size: 1.25rem;
-  margin-top: 3rem;
   padding: 2rem;
-  border-radius: 12px;
-  background-color: #2c3440;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(44, 52, 64, 0.8) 0%, rgba(26, 32, 44, 0.8) 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+}
+
+.loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+.loading-bar-container {
+  width: 250px;
+  height: 6px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border-radius: 3px;
+  margin: 0 auto 1.5rem;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.loading-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00d4aa 0%, #00f5d4 50%, #00d4aa 100%);
+  border-radius: 3px;
+  animation: loading 2s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+}
+
+@keyframes loading {
+  0% {
+    width: 0%;
+    transform: translateX(0%);
+  }
+  50% {
+    width: 100%;
+    transform: translateX(0%);
+  }
+  100% {
+    width: 0%;
+    transform: translateX(100%);
+  }
+}
+
+.loading-text {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .error {
@@ -334,19 +394,21 @@ body {
 }
 
 .movie-card {
-  background: linear-gradient(135deg, #2c3440 0%, #1a202c 100%);
-  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(44, 52, 64, 0.95) 0%, rgba(26, 32, 44, 0.95) 100%);
+  border-radius: 20px;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 212, 170, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .movie-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 212, 170, 0.1);
-  border-color: rgba(0, 212, 170, 0.2);
+  transform: translateY(-16px) scale(1.05);
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 170, 0.2);
+  border-color: rgba(0, 212, 170, 0.4);
 }
 
 .movie-poster {
@@ -363,7 +425,7 @@ body {
 .movie-info {
   padding: 1.5rem;
   background: linear-gradient(135deg, rgba(44, 52, 64, 0.95) 0%, rgba(26, 32, 44, 0.95) 100%);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
 }
 
 .movie-info h3 {

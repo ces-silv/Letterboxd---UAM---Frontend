@@ -4,10 +4,10 @@
       <h2>{{ $t('auth.register.title') }}</h2>
       <form @submit.prevent="handleRegister" class="auth-form">
         <div class="form-group">
-          <label for="name">{{ $t('auth.register.name') }}</label>
+          <label for="username">{{ $t('auth.register.username') }}</label>
           <input
-            id="name"
-            v-model="form.name"
+            id="username"
+            v-model="form.username"
             type="text"
             required
             class="form-input"
@@ -58,39 +58,82 @@
 
 <script>
 import axios from 'axios'
+import { API_ENDPOINTS } from '../config'
 
 export default {
   name: 'RegisterForm',
   data() {
     return {
       form: {
-        name: '',
+        username: '',
         email: '',
         password: '',
         password_confirmation: ''
       },
       loading: false,
-      error: null
+      error: null,
+      currentError: null // Store the raw error object to re-localize when language changes
     }
   },
+  mounted() {
+    // Watch for language changes to update error messages
+    this.$watch(
+      () => this.$i18n.locale,
+      () => {
+        if (this.currentError) {
+          this.updateErrorMessage()
+        }
+      }
+    )
+  },
   methods: {
+    updateErrorMessage() {
+      if (this.currentError) {
+        if (typeof this.currentError === 'object') {
+          this.error = this.currentError[this.$i18n.locale] || this.currentError.en || this.currentError.es
+        } else {
+          this.error = this.currentError
+        }
+      }
+    },
     async handleRegister() {
       if (this.form.password !== this.form.password_confirmation) {
         this.error = 'Passwords do not match'
+        this.currentError = null
         return
       }
 
       this.loading = true
       this.error = null
+      this.currentError = null
       try {
-        const response = await axios.post('http://localhost:8000/api/register', this.form)
-        // Store token in localStorage
+        const response = await axios.post(API_ENDPOINTS.REGISTER, this.form)
+        // Store token in localStorage as Bearer token
         localStorage.setItem('token', response.data.token)
         // Redirect to home
         this.$router.push('/')
       } catch (error) {
-        this.error = error.response?.data?.message || 'Registration failed'
-      } finally {
+        const response = error.response?.data
+        if (response?.errors && typeof response.errors === 'object') {
+          const firstField = Object.keys(response.errors)[0]
+          const firstError = response.errors[firstField]
+
+          // Store the raw error object to re-localize when language changes
+          this.currentError = firstError
+
+          if (firstError && typeof firstError === 'object') {
+            this.error = firstError[this.$i18n.locale] || firstError.en || firstError.es || 'Validation error'
+          } else if (typeof firstError === 'string') {
+            this.error = firstError
+          } else {
+            this.error = 'Validation error'
+          }
+        } else {
+          this.error = response?.message || 'Registration failed'
+          this.currentError = null
+        }
+      }
+ finally {
         this.loading = false
       }
     }

@@ -3,6 +3,7 @@ import Home from '../App.vue'
 import Login from '../components/Login.vue'
 import Register from '../components/Register.vue'
 import MovieDetail from '../components/MovieDetail.vue'
+import Profile from '../components/Profile.vue'
 
 const routes = [
   {
@@ -24,7 +25,14 @@ const routes = [
     path: '/movie/:id',
     name: 'MovieDetail',
     component: MovieDetail,
-    props: true
+    props: (route) => ({
+      movieId: route.params.id
+    })
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile
   }
 ]
 
