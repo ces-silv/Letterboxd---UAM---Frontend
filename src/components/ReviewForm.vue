@@ -69,12 +69,28 @@ export default {
   },
   computed: {
     isEditing() {
-      return !!this.existingReview
+      return !!this.existingReview && !!this.existingReview.id
+    }
+  },
+  watch: {
+    existingReview: {
+      immediate: true,
+      handler(newReview) {
+        if (newReview && newReview.id) {
+          this.rating = newReview.rating || 5
+          this.comment = newReview.comment || ''
+        } else {
+          // Reset to defaults for new review
+          this.rating = 5
+          this.comment = ''
+        }
+        this.error = null
+      }
     }
   },
   mounted() {
-    if (this.isEditing) {
-      this.rating = this.existingReview.rating
+    if (this.isEditing && this.existingReview) {
+      this.rating = this.existingReview.rating || 5
       this.comment = this.existingReview.comment || ''
     }
   },
@@ -96,19 +112,40 @@ export default {
           comment: this.comment.trim() || null
         }
 
-        if (this.isEditing) {
+        if (this.isEditing && this.existingReview && this.existingReview.id) {
+          // Editing existing review - use PUT endpoint: PUT /api/reviews/{id}
+          console.log('Editing review ID:', this.existingReview.id, 'using PUT endpoint')
           await axios.put(`${API_ENDPOINTS.REVIEWS}/${this.existingReview.id}`, reviewData, {
             headers: { Authorization: `Bearer ${token}` }
           })
+          console.log('Review updated successfully')
         } else {
+          // Creating new review - use POST endpoint
+          console.log('Creating new review using POST endpoint')
           await axios.post(API_ENDPOINTS.REVIEWS, reviewData, {
             headers: { Authorization: `Bearer ${token}` }
           })
+          console.log('Review created successfully')
         }
 
         this.$emit('review-submitted')
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to submit review'
+        // Handle specific error messages from API
+        const errorMessage = error.response?.data?.message || 'Failed to submit review'
+        const errorDetails = error.response?.data?.errors
+        
+        if (errorDetails) {
+          // Format validation errors
+          const errorText = Object.values(errorDetails).flat().join(', ')
+          this.error = errorText || errorMessage
+        } else {
+          this.error = errorMessage
+        }
+        
+        // If it's a duplicate review error, show a more user-friendly message
+        if (errorMessage.toLowerCase().includes('already') || errorMessage.toLowerCase().includes('duplicate')) {
+          this.error = 'You have already reviewed this movie. Please edit your existing review instead.'
+        }
       } finally {
         this.loading = false
       }

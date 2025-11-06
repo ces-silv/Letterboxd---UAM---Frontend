@@ -48,7 +48,8 @@ const messages = {
       statistics: 'Statistics',
       reviews: 'Reviews',
       noReviews: 'No reviews yet. Be the first to review this movie!',
-      by: 'By'
+      by: 'By',
+      deleteReview: "Delete Review"
     },
     review: {
       write: 'Write a Review',
@@ -131,7 +132,8 @@ const messages = {
       statistics: 'Estadísticas',
       reviews: 'Reseñas',
       noReviews: 'Aún no hay reseñas. ¡Sé el primero en reseñar esta película!',
-      by: 'Por'
+      by: 'Por',
+      deleteReview: "Eliminar Reseña"
     },
     review: {
       write: 'Escribir una Reseña',

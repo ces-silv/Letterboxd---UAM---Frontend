@@ -301,21 +301,42 @@ body {
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .header-content {
+    padding: 0 1.5rem;
+  }
+
+  .movies-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 2rem;
+  }
+
+  .movie-poster {
+    height: 380px;
+  }
+}
+
 @media (max-width: 768px) {
+  .header {
+    padding: 1.5rem 0;
+  }
+
   .header-content {
     flex-direction: column;
     gap: 1.5rem;
-    padding: 0 0.5rem;
+    padding: 0 1rem;
   }
 
   .header h1 {
     font-size: 2rem;
+    text-align: center;
   }
 
   .nav {
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.75rem;
+    width: 100%;
   }
 
   .nav-link {
@@ -337,22 +358,55 @@ body {
   .header p {
     margin-top: 1rem;
     font-size: 1rem;
+    padding: 0 1rem;
   }
 
   .main-content {
-    padding: 2rem 0.5rem;
+    padding: 2rem 1rem;
   }
 
   .movies-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
     margin-top: 2rem;
+  }
+
+  .movie-card {
+    max-width: 100%;
+  }
+
+  .movie-poster {
+    height: 350px;
+  }
+
+  .movie-info {
+    padding: 1.25rem;
+  }
+
+  .movie-info h3 {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .movies-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .movie-poster {
+    height: 320px;
   }
 }
 
 @media (max-width: 480px) {
   .header {
-    padding: 1.5rem 0;
+    padding: 1.25rem 0;
+  }
+
+  .header-content {
+    gap: 1.25rem;
+    padding: 0 0.75rem;
   }
 
   .header h1 {
@@ -361,30 +415,158 @@ body {
 
   .nav {
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .nav-link {
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.875rem;
     font-size: 0.85rem;
+    flex: 1 1 auto;
+    min-width: calc(50% - 0.25rem);
+    text-align: center;
+  }
+
+  .language-selector {
+    gap: 0.5rem;
+    padding-top: 0.875rem;
+    margin-top: 0.875rem;
   }
 
   .lang-btn {
-    padding: 0.4rem 0.8rem;
-    min-width: 2.5rem;
+    padding: 0.5rem 0.875rem;
+    min-width: 2.75rem;
     font-size: 0.8rem;
+    flex: 1;
+    max-width: 80px;
+  }
+
+  .header p {
+    font-size: 0.95rem;
+    padding: 0 0.75rem;
+    margin-top: 0.875rem;
+  }
+
+  .main-content {
+    padding: 1.5rem 0.75rem;
   }
 
   .movies-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
   }
 
   .movie-card {
     max-width: 100%;
   }
 
+  .movie-poster {
+    height: 280px;
+  }
+
+  .movie-info {
+    padding: 1rem;
+  }
+
+  .movie-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .release-date {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .rating {
+    margin-bottom: 0.5rem;
+    gap: 0.375rem;
+  }
+
+  .stars {
+    font-size: 1rem;
+  }
+
+  .rating-text {
+    font-size: 0.85rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .review-count {
+    font-size: 0.8rem;
+  }
+
+  .loading, .error {
+    padding: 1.5rem;
+    font-size: 1.1rem;
+    margin: 1rem;
+  }
+
+  .loading-bar-container {
+    width: 200px;
+  }
+}
+
+@media (max-width: 360px) {
+  .header {
+    padding: 1rem 0;
+  }
+
+  .header-content {
+    padding: 0 0.5rem;
+    gap: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .nav {
+    gap: 0.375rem;
+  }
+
+  .nav-link {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+    min-width: calc(50% - 0.1875rem);
+  }
+
+  .header p {
+    font-size: 0.9rem;
+    padding: 0 0.5rem;
+    margin-top: 0.75rem;
+  }
+
   .main-content {
-    padding: 1.5rem 0.25rem;
+    padding: 1.25rem 0.5rem;
+  }
+
+  .movies-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .movie-poster {
+    height: 400px;
+  }
+
+  .movie-card:hover {
+    transform: translateY(-8px) scale(1.02);
+  }
+
+  .loading, .error {
+    padding: 1.25rem;
+    font-size: 1rem;
+    margin: 0.75rem;
+  }
+
+  .loading-bar-container {
+    width: 180px;
+  }
+
+  .loading-text {
+    font-size: 1rem;
   }
 }
 

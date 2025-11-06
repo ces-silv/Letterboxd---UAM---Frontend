@@ -410,7 +410,6 @@ Authorization: Bearer {your-token}
 ---
 
 ### 19. PUT /api/reviews/{id}
-**Update review (owner only)**
 
 **Authentication:** Required (Review owner only)  
 **Method:** PUT
@@ -418,7 +417,6 @@ Authorization: Bearer {your-token}
 ---
 
 ### 20. DELETE /api/reviews/{id}
-**Delete review (owner only)**
 
 **Authentication:** Required (Review owner only)  
 **Method:** DELETE

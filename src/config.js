@@ -5,6 +5,8 @@ const API_ENDPOINTS = {
   MOVIES_POPULAR: `${API_BASE_URL}/api/movies/popular`,
   MOVIES_SEARCH: `${API_BASE_URL}/api/movies/search`,
   REVIEWS: `${API_BASE_URL}/api/reviews`,
+  REVIEWS_MY: `${API_BASE_URL}/api/reviews/my-reviews`,
+  MOVIE_REVIEW_STATUS: (movieId) => `${API_BASE_URL}/api/movies/${movieId}/review-status`,
   LOGIN: `${API_BASE_URL}/api/login`,
   REGISTER: `${API_BASE_URL}/api/register`,
   USER: `${API_BASE_URL}/api/user`,
