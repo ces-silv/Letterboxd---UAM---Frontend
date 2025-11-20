@@ -42,16 +42,13 @@ export default {
     return {
       form: {
         username: ''
-        // Email is not included as it's not editable
-        // Name is not included as it doesn't exist in the user model
       },
       loading: false,
       error: null,
-      currentError: null // Store the raw error object to re-localize when language changes
+      currentError: null
     }
   },
   mounted() {
-    // Watch for language changes to update error messages
     this.$watch(
       () => this.$i18n.locale,
       () => {
@@ -60,10 +57,7 @@ export default {
         }
       }
     )
-    // Initialize form with current user data
     this.form.username = this.user.username
-    // Email is not editable, so we don't include it in the form
-    // Name doesn't exist in the user model
   },
   methods: {
     updateErrorMessage() {
@@ -92,7 +86,6 @@ export default {
           const firstField = Object.keys(response.errors)[0]
           const firstError = response.errors[firstField]
 
-          // Store the raw error object to re-localize when language changes
           this.currentError = firstError
 
           if (firstError && typeof firstError === 'object') {

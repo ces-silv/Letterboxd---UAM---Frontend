@@ -48,6 +48,9 @@
               </button>
             </template>
           </div>
+          <div v-else class="login-cta">
+            <router-link to="/login" class="review-btn">{{ $t('auth.loginToReview') || 'Inicia sesión para reseñar' }}</router-link>
+          </div>
         </div>
       </div>
 
@@ -146,7 +149,7 @@
                 </div>
               </div>
               <p class="review-comment" v-if="review.comment">{{ review.comment }}</p>
-              <p class="review-author">{{ $t('movie.by') }} Anonymous User</p>
+              <p class="review-author">{{ $t('movie.by') }} {{ getReviewAuthor(review) }}</p>
             </div>
           </div>
         </section>
@@ -156,9 +159,10 @@
 </template>
 
 <script>
-import axios from 'axios'
 import ReviewForm from './ReviewForm.vue'
-import { API_ENDPOINTS, STORAGE_URLS } from '../config'
+import { STORAGE_URLS } from '../config'
+import moviesService from '../services/moviesService'
+import reviewsService from '../services/reviewsService'
 
 export default {
   name: 'MovieDetail',
@@ -204,29 +208,23 @@ export default {
   methods: {
     async fetchMovieDetails() {
       try {
-        const response = await axios.get(`${API_ENDPOINTS.MOVIES}/${this.movieId}?include=director,cast,genres,reviews`)
-        this.movie = response.data.data // API returns data wrapped in "data" key
-        console.log('Movie data:', this.movie) // Debug log
+        const response = await moviesService.getById(this.movieId, { include: 'director,cast,genres,reviews' })
+        this.movie = response.data.data
       } catch (error) {
         this.error = 'Failed to load movie details'
-        console.error(error)
       }
     },
     async fetchMovieStatistics() {
       try {
-        const response = await axios.get(`${API_ENDPOINTS.MOVIES}/${this.movieId}/statistics`)
+        const response = await moviesService.stats(this.movieId)
         this.statistics = response.data.statistics
-      } catch (error) {
-        console.error('Failed to load statistics:', error)
-      }
+      } catch (error) { console.error(error) }
     },
     async fetchMovieReviews() {
       try {
-        const response = await axios.get(`${API_ENDPOINTS.MOVIES}/${this.movieId}/reviews`)
+        const response = await moviesService.reviewsForMovie(this.movieId)
         this.reviews = response.data.data || []
-      } catch (error) {
-        console.error('Failed to load reviews:', error)
-      } finally {
+      } catch (error) { console.error(error) } finally {
         this.loading = false
       }
     },
@@ -237,21 +235,13 @@ export default {
           this.userReview = null
           return
         }
-        // Use the new endpoint: GET /api/movies/{movieId}/review-status
-        const response = await axios.get(API_ENDPOINTS.MOVIE_REVIEW_STATUS(this.movieId), {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        
+        const response = await reviewsService.reviewStatus(this.movieId)
         if (response.data.has_reviewed && response.data.review) {
           this.userReview = response.data.review
-          console.log('User review found:', this.userReview)
         } else {
           this.userReview = null
-          console.log('No review found for this movie')
         }
       } catch (error) {
-        console.error('Failed to check user review:', error)
-        // If 404, movie doesn't exist, but user has no review
         if (error.response?.status === 404) {
           this.userReview = null
         } else {
@@ -264,13 +254,7 @@ export default {
       this.fetchMovieDetails()
       this.fetchMovieStatistics()
       this.fetchMovieReviews()
-      // Refresh user review to get updated data
-      this.checkUserReview().then(() => {
-        // If user just created a review, it should now exist
-        if (this.userReview) {
-          console.log('Review saved successfully')
-        }
-      })
+      this.checkUserReview()
     },
     confirmDeleteReview() {
       if (!this.userReview) {
@@ -280,9 +264,7 @@ export default {
       this.deletingReview = true
       const reviewId = this.userReview.id
       
-      axios.delete(`${API_ENDPOINTS.REVIEWS}/${reviewId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
+      reviewsService.remove(reviewId)
       .then(() => {
         this.userReview = null
         this.showReviewForm = false
@@ -292,7 +274,6 @@ export default {
         this.fetchMovieReviews()
       })
       .catch((error) => {
-        console.error('Failed to delete review:', error)
         alert(error.response?.data?.message || 'Failed to delete review')
       })
       .finally(() => {
@@ -309,6 +290,9 @@ export default {
     },
     isUserReview(review) {
       return this.userReview && this.userReview.id === review.id
+    },
+    getReviewAuthor(review) {
+      return review.user || review.username || (review.user && review.user.username) || (this.$t('movie.anonymous') || 'Anonymous User')
     }
   }
 }
@@ -375,6 +359,7 @@ export default {
 }
 
 .movie-stats {
+  padding-bottom: 2rem;
   display: flex;
   gap: 2rem;
   margin-bottom: 1rem;
@@ -399,6 +384,10 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  margin-top: 1rem;
+}
+
+.login-cta {
   margin-top: 1rem;
 }
 

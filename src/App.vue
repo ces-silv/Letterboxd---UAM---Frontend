@@ -7,16 +7,28 @@
         </router-link>
         <nav class="nav">
           <router-link to="/" class="nav-link">{{ $t('nav.home') }}</router-link>
-          <router-link to="/login" class="nav-link">{{ $t('nav.login') }}</router-link>
-          <router-link to="/register" class="nav-link">{{ $t('nav.register') }}</router-link>
-          <router-link to="/profile" class="nav-link">{{ $t('nav.profile') }}</router-link>
+          <router-link v-if="isAdmin" to="/admin" class="nav-link">{{ $t('nav.admin') || 'Admin' }}</router-link>
+          <div class="user-menu">
+            <button class="user-btn" @click="toggleUserMenu" aria-haspopup="true" aria-expanded="showUserMenu">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
+            <div v-if="showUserMenu" class="dropdown">
+              <template v-if="!isLoggedIn">
+                <router-link to="/login" class="dropdown-item">{{ $t('nav.login') }}</router-link>
+                <router-link to="/register" class="dropdown-item">{{ $t('nav.register') }}</router-link>
+              </template>
+              <template v-else>
+                <router-link to="/profile" class="dropdown-item">{{ $t('nav.profile') }}</router-link>
+                <button class="dropdown-item" @click="handleLogout">{{ $t('auth.logout') || 'Cerrar sesión' }}</button>
+              </template>
+            </div>
+          </div>
           <div class="language-selector">
             <button @click="setLanguage('en')" :class="{ active: $i18n.locale === 'en' }" class="lang-btn">EN</button>
             <button @click="setLanguage('es')" :class="{ active: $i18n.locale === 'es' }" class="lang-btn">ES</button>
           </div>
         </nav>
       </div>
-      <p v-if="$route.path === '/'">{{ $t('header.subtitle') }}</p>
     </header>
 
     <router-view v-if="$route.path !== '/'" />
@@ -32,9 +44,14 @@
         {{ $t('common.error') }}: {{ error }}
       </div>
       <div v-else class="movies-grid">
-        <router-link v-for="movie in movies" :key="movie.id" :to="{ name: 'MovieDetail', params: { id: movie.id } }" class="movie-card-link">
+        <router-link
+          v-for="movie in movies"
+          :key="movie.id || movie.movie_id"
+          :to="{ name: 'MovieDetail', params: { id: movie.id || movie.movie_id } }"
+          class="movie-card-link"
+        >
           <div class="movie-card">
-            <img :src="movie.poster_path || STORAGE_URLS.NO_PHOTO" :alt="movie.title" class="movie-poster" />
+            <div class="card-cover" :style="cardBgStyle(movie)"></div>
             <div class="movie-info">
               <h3>{{ movie.title }}</h3>
               <p class="release-date">{{ formatDate(movie.release_date) }}</p>
@@ -52,8 +69,10 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { API_ENDPOINTS, STORAGE_URLS } from './config'
+import { STORAGE_URLS, API_BASE_URL } from './config'
+import moviesService from './services/moviesService'
+import authService from './services/authService'
+
 
 export default {
   name: 'App',
@@ -62,17 +81,48 @@ export default {
       movies: [],
       loading: true,
       error: null,
-      STORAGE_URLS
+      STORAGE_URLS,
+      showUserMenu: false,
+      searchQuery: '',
+      searchTimer: null,
+      userRole: null
+    }
+  },
+  computed: {
+    isLoggedIn() {
+      return !!localStorage.getItem('token')
+    },
+    isAdmin() {
+      return this.isLoggedIn && this.userRole === 'A'
     }
   },
   mounted() {
     this.fetchPopularMovies()
+    this.fetchUserRole()
   },
   methods: {
     async fetchPopularMovies() {
       try {
-        const response = await axios.get(`${API_ENDPOINTS.MOVIES}?per_page=20&include=director`)
-        this.movies = response.data.data
+        const response = await moviesService.popular({ per_page: 20 })
+        const payload = response.data
+        this.movies = Array.isArray(payload) ? payload : (payload?.data || [])
+        this.loading = false
+      } catch (error) {
+        this.movies = null
+        this.error = null
+        this.loading = false
+      }
+    },
+    async searchMovies() {
+      if (!this.searchQuery.trim()) {
+        this.fetchPopularMovies()
+        return
+      }
+      this.loading = true
+      try {
+        const response = await moviesService.search({ title: this.searchQuery.trim(), per_page: 20 })
+        const payload = response.data
+        this.movies = Array.isArray(payload) ? payload : (payload?.data || [])
         this.loading = false
       } catch (error) {
         this.error = error.message
@@ -83,9 +133,46 @@ export default {
       const date = new Date(dateString)
       return date.getFullYear()
     },
+    resolvePoster(movie) {
+      const p = movie.poster_path
+      if (!p) return STORAGE_URLS.NO_PHOTO
+      if (typeof p === 'string' && (p.startsWith('http://') || p.startsWith('https://'))) return p
+      if (typeof p === 'string' && p.startsWith('/')) return `${API_BASE_URL}${p}`
+      return `${STORAGE_URLS.POSTERS}/${p}`
+    },
+    cardBgStyle(movie) {
+      const url = this.resolvePoster(movie)
+      return { backgroundImage: `url(${url})` }
+    },
     setLanguage(lang) {
       this.$i18n.locale = lang
       localStorage.setItem('language', lang)
+    },
+    toggleUserMenu() {
+      this.showUserMenu = !this.showUserMenu
+    },
+    onSearchInput() {
+      if (this.searchTimer) clearTimeout(this.searchTimer)
+      this.searchTimer = setTimeout(() => this.searchMovies(), 400)
+    },
+    async handleLogout() {
+      try {
+        await authService.logout()
+      } catch (e) { console.error(e) }
+      localStorage.removeItem('token')
+      this.showUserMenu = false
+      this.$router.push('/')
+      this.userRole = null
+    },
+    async fetchUserRole() {
+      if (!this.isLoggedIn) return
+      try {
+        const response = await authService.me()
+        const payload = response.data
+        this.userRole = payload?.data?.role || payload?.role || payload?.user?.role || null
+      } catch (e) {
+        this.userRole = null
+      }
     }
   }
 }
@@ -150,6 +237,62 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #3a4553;
+  background-color: transparent;
+  color: #9ab;
+}
+
+.dropdown {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  background: linear-gradient(135deg, #2c3440 0%, #1a202c 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  min-width: 180px;
+  z-index: 10;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  color: #9ab;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+}
+
+.dropdown-item:hover {
+  background-color: #3a4553;
+  color: #fff;
+}
+
+.search-box {
+  margin-left: 1rem;
+}
+
+.search-input {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #3a4553;
+  border-radius: 8px;
+  background-color: rgba(26, 32, 44, 0.8);
+  color: #fff;
 }
 
 .nav-link {
@@ -311,7 +454,7 @@ body {
     gap: 2rem;
   }
 
-  .movie-poster {
+  .card-cover {
     height: 380px;
   }
 }
@@ -375,7 +518,7 @@ body {
     max-width: 100%;
   }
 
-  .movie-poster {
+  .card-cover {
     height: 350px;
   }
 
@@ -394,7 +537,7 @@ body {
     gap: 1.25rem;
   }
 
-  .movie-poster {
+  .card-cover {
     height: 320px;
   }
 }
@@ -460,7 +603,7 @@ body {
     max-width: 100%;
   }
 
-  .movie-poster {
+  .card-cover {
     height: 280px;
   }
 
@@ -547,7 +690,7 @@ body {
     margin-top: 1.25rem;
   }
 
-  .movie-poster {
+  .card-cover {
     height: 400px;
   }
 
@@ -593,14 +736,16 @@ body {
   border-color: rgba(0, 212, 170, 0.4);
 }
 
-.movie-poster {
+.card-cover {
   width: 100%;
   height: 400px;
-  object-fit: cover;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   transition: transform 0.4s ease;
 }
 
-.movie-card:hover .movie-poster {
+.movie-card:hover .card-cover {
   transform: scale(1.05);
 }
 

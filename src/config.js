@@ -11,7 +11,12 @@ const API_ENDPOINTS = {
   REGISTER: `${API_BASE_URL}/api/register`,
   USER: `${API_BASE_URL}/api/user`,
   EDIT_USER: `${API_BASE_URL}/api/profile`,
-  LOGOUT: `${API_BASE_URL}/api/logout`
+  LOGOUT: `${API_BASE_URL}/api/logout`,
+  CHANGE_PASSWORD: `${API_BASE_URL}/api/change-password`,
+  ACTORS: `${API_BASE_URL}/api/actors`,
+  DIRECTORS: `${API_BASE_URL}/api/directors`,
+  GENRES: `${API_BASE_URL}/api/genres`,
+  MOVIE_CASTS: `${API_BASE_URL}/api/movie-casts`
 }
 
 const STORAGE_URLS = {

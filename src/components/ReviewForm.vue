@@ -80,7 +80,6 @@ export default {
           this.rating = newReview.rating || 5
           this.comment = newReview.comment || ''
         } else {
-          // Reset to defaults for new review
           this.rating = 5
           this.comment = ''
         }
@@ -113,36 +112,27 @@ export default {
         }
 
         if (this.isEditing && this.existingReview && this.existingReview.id) {
-          // Editing existing review - use PUT endpoint: PUT /api/reviews/{id}
-          console.log('Editing review ID:', this.existingReview.id, 'using PUT endpoint')
           await axios.put(`${API_ENDPOINTS.REVIEWS}/${this.existingReview.id}`, reviewData, {
             headers: { Authorization: `Bearer ${token}` }
           })
-          console.log('Review updated successfully')
         } else {
-          // Creating new review - use POST endpoint
-          console.log('Creating new review using POST endpoint')
           await axios.post(API_ENDPOINTS.REVIEWS, reviewData, {
             headers: { Authorization: `Bearer ${token}` }
           })
-          console.log('Review created successfully')
         }
 
         this.$emit('review-submitted')
       } catch (error) {
-        // Handle specific error messages from API
         const errorMessage = error.response?.data?.message || 'Failed to submit review'
         const errorDetails = error.response?.data?.errors
         
         if (errorDetails) {
-          // Format validation errors
           const errorText = Object.values(errorDetails).flat().join(', ')
           this.error = errorText || errorMessage
         } else {
           this.error = errorMessage
         }
-        
-        // If it's a duplicate review error, show a more user-friendly message
+
         if (errorMessage.toLowerCase().includes('already') || errorMessage.toLowerCase().includes('duplicate')) {
           this.error = 'You have already reviewed this movie. Please edit your existing review instead.'
         }

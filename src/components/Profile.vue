@@ -48,50 +48,80 @@
             </div>
           </div>
         </div>
+        <div class="reviews-card">
+          <h2>{{ $t('profile.myReviews') || 'Mis reseñas' }}</h2>
+          <div v-if="reviewsLoading" class="loading">{{ $t('common.loading') }}</div>
+          <div v-else-if="myReviews.length === 0" class="no-reviews">{{ $t('movie.noReviews') }}</div>
+          <div v-else class="my-reviews-list">
+            <div v-for="rev in myReviews" :key="rev.id" class="my-review-item">
+              <div class="left">
+                <router-link :to="{ name: 'MovieDetail', params: { id: (rev.movie && rev.movie.id) || rev.movie_id } }" class="movie-link">{{ (rev.movie && rev.movie.title) || ('#' + rev.movie_id) }}</router-link>
+                <span class="date">{{ formatDate(rev.created_at) }}</span>
+              </div>
+              <div class="right">
+                <span class="rating">{{ '★'.repeat(rev.rating) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ChangePasswordForm />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-import { API_ENDPOINTS } from '../config'
 import ProfileEditForm from './ProfileEditForm.vue'
+import ChangePasswordForm from './ChangePasswordForm.vue'
+import authService from '../services/authService'
+import reviewsService from '../services/reviewsService'
 
 export default {
   name: 'UserProfile',
   components: {
-    ProfileEditForm
+    ProfileEditForm,
+    ChangePasswordForm
   },
   data() {
     return {
       user: null,
       loading: true,
       error: null,
-      showEditForm: false
+      showEditForm: false,
+      myReviews: [],
+      reviewsLoading: false
     }
   },
   mounted() {
     this.fetchUserProfile()
+    this.fetchMyReviews()
   },
   methods: {
     async fetchUserProfile() {
       try {
-        const token = localStorage.getItem('token')
-        const response = await axios.get(API_ENDPOINTS.USER, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        this.user = response.data.data // API returns data wrapped in "data" key
+        const response = await authService.me()
+        this.user = response.data.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to load profile'
-        console.error(error)
       } finally {
         this.loading = false
       }
     },
+    async fetchMyReviews() {
+      this.reviewsLoading = true
+      try {
+        const response = await reviewsService.myReviews({ per_page: 10, include: 'movie' })
+        this.myReviews = response.data.data || []
+      } catch (error) {
+        console.error(error)
+      } finally {
+        this.reviewsLoading = false
+      }
+    },
     handleProfileUpdated() {
       this.showEditForm = false
-      this.fetchUserProfile() // Refresh profile data
+      this.fetchUserProfile()
     },
     formatDate(dateString) {
       const date = new Date(dateString)
@@ -210,6 +240,21 @@ export default {
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1.5rem;
 }
+
+.reviews-card {
+  background: linear-gradient(135deg, rgba(44, 52, 64, 0.95) 0%, rgba(26, 32, 44, 0.95) 100%);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.my-reviews-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.my-review-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border: 1px solid #3a4553; border-radius: 12px; }
+.movie-link { color: #00d4aa; text-decoration: none; }
+.movie-link:hover { text-decoration: underline; }
+.date { color: #9ab; margin-left: 0.5rem; }
+.rating { color: #00d4aa; font-weight: bold; }
 
 .stat {
   text-align: center;

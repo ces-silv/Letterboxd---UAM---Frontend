@@ -25,25 +25,22 @@
         </div>
         <div class="form-group">
           <label for="password">{{ $t('auth.register.password') }}</label>
-          <input
-            id="password"
-            v-model="form.password"
-            type="password"
-            required
-            class="form-input"
-          />
+          <div class="password-field">
+            <input id="password" v-model="form.password" :type="showPassword ? 'text' : 'password'" required class="form-input" />
+            <button type="button" class="toggle-btn" @click="showPassword = !showPassword">{{ showPassword ? ($t('common.hide') || 'Ocultar') : ($t('common.show') || 'Mostrar') }}</button>
+          </div>
         </div>
         <div class="form-group">
           <label for="password_confirmation">{{ $t('auth.register.confirmPassword') }}</label>
-          <input
-            id="password_confirmation"
-            v-model="form.password_confirmation"
-            type="password"
-            required
-            class="form-input"
-          />
+          <div class="password-field">
+            <input id="password_confirmation" v-model="form.password_confirmation" :type="showConfirm ? 'text' : 'password'" required class="form-input" />
+            <button type="button" class="toggle-btn" @click="showConfirm = !showConfirm">{{ showConfirm ? ($t('common.hide') || 'Ocultar') : ($t('common.show') || 'Mostrar') }}</button>
+          </div>
+          <p v-if="bothPasswordsFilled" class="match-indicator" :class="{ ok: passwordsMatch, bad: !passwordsMatch }">
+            {{ passwordsMatch ? ($t('auth.register.passwordsMatch') || 'Las contraseñas coinciden') : ($t('auth.register.passwordsNoMatch') || 'Las contraseñas no coinciden') }}
+          </p>
         </div>
-        <button type="submit" :disabled="loading" class="auth-button">
+        <button type="submit" :disabled="loading || !passwordsMatch" class="auth-button">
           {{ loading ? $t('auth.register.loading') : $t('auth.register.submit') }}
         </button>
         <p v-if="error" class="error-message">{{ error }}</p>
@@ -72,11 +69,20 @@ export default {
       },
       loading: false,
       error: null,
-      currentError: null // Store the raw error object to re-localize when language changes
+      currentError: null,
+      showPassword: false,
+      showConfirm: false
+    }
+  },
+  computed: {
+    passwordsMatch() {
+      return this.form.password && this.form.password === this.form.password_confirmation
+    },
+    bothPasswordsFilled() {
+      return !!this.form.password && !!this.form.password_confirmation
     }
   },
   mounted() {
-    // Watch for language changes to update error messages
     this.$watch(
       () => this.$i18n.locale,
       () => {
@@ -97,8 +103,8 @@ export default {
       }
     },
     async handleRegister() {
-      if (this.form.password !== this.form.password_confirmation) {
-        this.error = 'Passwords do not match'
+      if (!this.passwordsMatch) {
+        this.error = this.$t('auth.register.passwordsNoMatch') || 'Las contraseñas no coinciden'
         this.currentError = null
         return
       }
@@ -108,17 +114,13 @@ export default {
       this.currentError = null
       try {
         const response = await axios.post(API_ENDPOINTS.REGISTER, this.form)
-        // Store token in localStorage as Bearer token
         localStorage.setItem('token', response.data.token)
-        // Redirect to home
         this.$router.push('/')
       } catch (error) {
         const response = error.response?.data
         if (response?.errors && typeof response.errors === 'object') {
           const firstField = Object.keys(response.errors)[0]
           const firstError = response.errors[firstField]
-
-          // Store the raw error object to re-localize when language changes
           this.currentError = firstError
 
           if (firstError && typeof firstError === 'object') {
@@ -262,6 +264,12 @@ export default {
   color: #00b894;
   text-decoration: underline;
 }
+
+.password-field { position: relative; }
+.toggle-btn { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: transparent; color: #9ab; border: none; cursor: pointer; }
+.match-indicator { margin-top: 0.5rem; font-size: 0.9rem; }
+.match-indicator.ok { color: #00d4aa; }
+.match-indicator.bad { color: #ff6b6b; }
 
 /* Responsive Design */
 @media (max-width: 480px) {

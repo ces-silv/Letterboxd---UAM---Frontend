@@ -50,11 +50,10 @@ export default {
       },
       loading: false,
       error: null,
-      currentError: null // Store the raw error object to re-localize when language changes
+      currentError: null
     }
   },
   mounted() {
-    // Watch for language changes to update error messages
     this.$watch(
       () => this.$i18n.locale,
       () => {
@@ -80,9 +79,7 @@ export default {
       this.currentError = null
       try {
         const response = await axios.post(API_ENDPOINTS.LOGIN, this.form)
-        // Store token in localStorage as Bearer token
         localStorage.setItem('token', response.data.token)
-        // Redirect to home
         this.$router.push('/')
       } catch (error) {
         const response = error.response?.data
@@ -90,7 +87,6 @@ export default {
           const firstField = Object.keys(response.errors)[0]
           const firstError = response.errors[firstField]
 
-          // Store the raw error object to re-localize when language changes
           this.currentError = firstError
 
           if (firstError && typeof firstError === 'object') {

@@ -6,7 +6,8 @@ const messages = {
       home: 'Home',
       login: 'Login',
       register: 'Register',
-      profile: 'Profile'
+      profile: 'Profile',
+      admin: 'Admin'
     },
     header: {
       title: 'Letterboxd UAM',
@@ -22,6 +23,8 @@ const messages = {
         link: 'Don\'t have an account?',
         linkText: 'Register here'
       },
+      loginToReview: 'Login to review',
+      logout: 'Logout',
       register: {
         title: 'Register',
         username: 'Username',
@@ -29,6 +32,8 @@ const messages = {
         email: 'Email',
         password: 'Password',
         confirmPassword: 'Confirm Password',
+        passwordsMatch: 'Passwords match',
+        passwordsNoMatch: 'Passwords do not match',
         submit: 'Register',
         loading: 'Registering...',
         link: 'Already have an account?',
@@ -65,7 +70,9 @@ const messages = {
     common: {
       loading: 'Loading movies...',
       error: 'Error loading movies',
-      reviews: 'reviews'
+      reviews: 'reviews',
+      show: 'Show',
+      hide: 'Hide'
     },
     profile: {
       title: 'My Profile',
@@ -82,7 +89,12 @@ const messages = {
       memberSince: 'Member since',
       activity: 'Activity',
       reviewsWritten: 'Reviews written',
-      averageRating: 'Average rating'
+      averageRating: 'Average rating',
+      myReviews: 'My Reviews',
+      changePassword: 'Change Password',
+      currentPassword: 'Current Password',
+      newPassword: 'New Password',
+      passwordChanged: 'Password changed successfully'
     }
   },
   es: {
@@ -90,7 +102,8 @@ const messages = {
       home: 'Inicio',
       login: 'Iniciar Sesión',
       register: 'Registrarse',
-      profile: 'Perfil'
+      profile: 'Perfil',
+      admin: 'Administración'
     },
     header: {
       title: 'Letterboxd UAM',
@@ -106,6 +119,8 @@ const messages = {
         link: '¿No tienes una cuenta?',
         linkText: 'Regístrate aquí'
       },
+      loginToReview: 'Inicia sesión para reseñar',
+      logout: 'Cerrar sesión',
       register: {
         title: 'Registrarse',
         name: 'Nombre',
@@ -113,6 +128,8 @@ const messages = {
         email: 'Correo electrónico',
         password: 'Contraseña',
         confirmPassword: 'Confirmar Contraseña',
+        passwordsMatch: 'Las contraseñas coinciden',
+        passwordsNoMatch: 'Las contraseñas no coinciden',
         submit: 'Registrarse',
         loading: 'Registrando...',
         link: '¿Ya tienes una cuenta?',
@@ -149,7 +166,9 @@ const messages = {
     common: {
       loading: 'Cargando películas...',
       error: 'Error al cargar películas',
-      reviews: 'reseñas'
+      reviews: 'reseñas',
+      show: 'Mostrar',
+      hide: 'Ocultar'
     },
     profile: {
       title: 'Mi Perfil',
@@ -166,7 +185,12 @@ const messages = {
       memberSince: 'Miembro desde',
       activity: 'Actividad',
       reviewsWritten: 'Reseñas escritas',
-      averageRating: 'Calificación promedio'
+      averageRating: 'Calificación promedio',
+      myReviews: 'Mis reseñas',
+      changePassword: 'Cambiar contraseña',
+      currentPassword: 'Contraseña actual',
+      newPassword: 'Nueva contraseña',
+      passwordChanged: 'Contraseña cambiada exitosamente'
     }
   }
 }

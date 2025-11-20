@@ -4,6 +4,7 @@ import Login from '../components/Login.vue'
 import Register from '../components/Register.vue'
 import MovieDetail from '../components/MovieDetail.vue'
 import Profile from '../components/Profile.vue'
+import AdminDashboard from '../components/AdminDashboard.vue'
 
 const routes = [
   {
@@ -33,6 +34,12 @@ const routes = [
     path: '/profile',
     name: 'Profile',
     component: Profile
+  }
+  ,
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: AdminDashboard
   }
 ]
 
