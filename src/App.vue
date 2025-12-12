@@ -73,6 +73,9 @@ import { STORAGE_URLS, API_BASE_URL } from './config'
 import moviesService from './services/moviesService'
 import authService from './services/authService'
 
+const API_ORIGIN = (() => {
+  try { return new URL(API_BASE_URL).origin } catch (e) { return API_BASE_URL }
+})()
 
 export default {
   name: 'App',
@@ -137,12 +140,13 @@ export default {
       const p = movie.poster_path
       if (!p) return STORAGE_URLS.NO_PHOTO
       if (typeof p === 'string' && (p.startsWith('http://') || p.startsWith('https://'))) return p
-      if (typeof p === 'string' && p.startsWith('/')) return `${API_BASE_URL}${p}`
-      return `${STORAGE_URLS.POSTERS}/${p}`
+      if (typeof p === 'string' && p.startsWith('/')) return `${API_ORIGIN}${p}`
+      if (typeof p === 'string' && p.startsWith('storage/')) return `${API_ORIGIN}/${p}`
+      return `${API_ORIGIN}/storage/${p}`
     },
     cardBgStyle(movie) {
       const url = this.resolvePoster(movie)
-      return { backgroundImage: `url(${url})` }
+      return { backgroundImage: `url('${encodeURI(url)}')` }
     },
     setLanguage(lang) {
       this.$i18n.locale = lang
