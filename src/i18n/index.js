@@ -9,6 +9,89 @@ const messages = {
       profile: 'Profile',
       admin: 'Admin'
     },
+    admin: {
+      header: { title: 'Admin Panel' },
+      mustLogin: 'You must log in',
+      sidebar: {
+        movies: 'Movies',
+        directors: 'Directors',
+        actors: 'Actors',
+        genres: 'Genres',
+        casts: 'Cast'
+      },
+      movies: {
+        title: 'Movies',
+        new: 'New movie',
+        edit: 'Edit',
+        delete: 'Delete',
+        modal: {
+          createTitle: 'New movie',
+          editTitle: 'Edit movie',
+          createSubmit: 'Create movie',
+          editSubmit: 'Update movie',
+          creating: 'Creating...',
+          updating: 'Updating...'
+        },
+        deleteModal: {
+          title: 'Delete movie',
+          confirm: 'Are you sure you want to delete “{title}”?',
+          cancel: 'Cancel',
+          deleting: 'Deleting...',
+          delete: 'Delete'
+        },
+        toast: {
+          created: 'Movie created successfully',
+          updated: 'Movie updated successfully',
+          deleted: 'Movie deleted successfully'
+        }
+      },
+      directors: {
+        title: 'Directors',
+        placeholder: 'Director name',
+        create: 'Create director',
+        creating: 'Creating...',
+        deleteModal: {
+          title: 'Delete director',
+          confirm: 'Are you sure you want to delete “{name}”?',
+          cancel: 'Cancel',
+          deleting: 'Deleting...',
+          delete: 'Delete'
+        },
+        toast: {
+          created: 'Director created successfully',
+          deleted: 'Director deleted successfully'
+        }
+      },
+      actors: {
+        title: 'Actors',
+        placeholder: 'Actor name',
+        create: 'Create actor',
+        creating: 'Creating...',
+        toast: {
+          created: 'Actor created successfully'
+        }
+      },
+      genres: {
+        title: 'Genres',
+        placeholder: 'Genre name',
+        create: 'Create genre',
+        creating: 'Creating...',
+        toast: {
+          created: 'Genre created successfully'
+        }
+      },
+      casts: {
+        title: 'Cast',
+        selectMovie: 'Select movie',
+        selectActor: 'Select actor',
+        placeholderCharacter: 'Character name',
+        create: 'Create cast',
+        creating: 'Creating...',
+        toast: {
+          created: 'Cast created successfully'
+        }
+      }
+    },
     header: {
       title: 'Letterboxd UAM',
       subtitle: 'Discover and review movies'
@@ -104,6 +187,89 @@ const messages = {
       register: 'Registrarse',
       profile: 'Perfil',
       admin: 'Administración'
+    },
+    admin: {
+      header: { title: 'Panel Administrativo' },
+      mustLogin: 'Debes iniciar sesión',
+      sidebar: {
+        movies: 'Películas',
+        directors: 'Directores',
+        actors: 'Actores',
+        genres: 'Géneros',
+        casts: 'Reparto'
+      },
+      movies: {
+        title: 'Películas',
+        new: 'Nueva película',
+        edit: 'Editar',
+        delete: 'Eliminar',
+        modal: {
+          createTitle: 'Nueva película',
+          editTitle: 'Editar película',
+          createSubmit: 'Crear película',
+          editSubmit: 'Actualizar película',
+          creating: 'Creando...',
+          updating: 'Actualizando...'
+        },
+        deleteModal: {
+          title: 'Eliminar película',
+          confirm: '¿Seguro que deseas eliminar “{title}”?',
+          cancel: 'Cancelar',
+          deleting: 'Eliminando...',
+          delete: 'Eliminar'
+        },
+        toast: {
+          created: 'Película creada exitosamente',
+          updated: 'Película actualizada exitosamente',
+          deleted: 'Película eliminada exitosamente'
+        }
+      },
+      directors: {
+        title: 'Directores',
+        placeholder: 'Nombre del director',
+        create: 'Crear director',
+        creating: 'Creando...',
+        deleteModal: {
+          title: 'Eliminar director',
+          confirm: '¿Seguro que deseas eliminar “{name}”?',
+          cancel: 'Cancelar',
+          deleting: 'Eliminando...',
+          delete: 'Eliminar'
+        },
+        toast: {
+          created: 'Director creado exitosamente',
+          deleted: 'Director eliminado exitosamente'
+        }
+      },
+      actors: {
+        title: 'Actores',
+        placeholder: 'Nombre del actor',
+        create: 'Crear actor',
+        creating: 'Creando...',
+        toast: {
+          created: 'Actor creado exitosamente'
+        }
+      },
+      genres: {
+        title: 'Géneros',
+        placeholder: 'Nombre del género',
+        create: 'Crear género',
+        creating: 'Creando...',
+        toast: {
+          created: 'Género creado exitosamente'
+        }
+      },
+      casts: {
+        title: 'Reparto',
+        selectMovie: 'Selecciona película',
+        selectActor: 'Selecciona actor',
+        placeholderCharacter: 'Nombre del personaje',
+        create: 'Crear reparto',
+        creating: 'Creando...',
+        toast: {
+          created: 'Reparto creado exitosamente'
+        }
+      }
     },
     header: {
       title: 'Letterboxd UAM',

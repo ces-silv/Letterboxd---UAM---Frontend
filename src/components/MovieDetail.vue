@@ -4,7 +4,7 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else-if="movie" class="movie-content">
       <div class="movie-header">
-        <img :src="movie.poster_path || STORAGE_URLS.NO_PHOTO" :alt="movie.title" class="movie-poster-large" />
+        <img :src="movie.poster_path || defaultPoster" :alt="movie.title" class="movie-poster-large" />
         <div class="movie-info">
           <h1>{{ movie.title }}</h1>
           <p class="release-date">{{ formatDate(movie.release_date) }}</p>
@@ -49,7 +49,7 @@
             </template>
           </div>
           <div v-else class="login-cta">
-            <router-link to="/login" class="review-btn">{{ $t('auth.loginToReview') || 'Inicia sesión para reseñar' }}</router-link>
+            <router-link :to="{ name: 'Login', query: { redirect: $route.fullPath } }" class="review-btn">{{ $t('auth.loginToReview') || 'Inicia sesión para reseñar' }}</router-link>
           </div>
         </div>
       </div>
@@ -163,6 +163,7 @@ import ReviewForm from './ReviewForm.vue'
 import { STORAGE_URLS } from '../config'
 import moviesService from '../services/moviesService'
 import reviewsService from '../services/reviewsService'
+import defaultPoster from '@/assets/poster.png'
 
 export default {
   name: 'MovieDetail',
@@ -186,7 +187,8 @@ export default {
       userReview: null,
       deletingReview: false,
       showDeleteModal: false,
-      STORAGE_URLS
+      STORAGE_URLS,
+      defaultPoster
     }
   },
   computed: {

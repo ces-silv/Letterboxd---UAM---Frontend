@@ -70,6 +70,7 @@
 
 <script>
 import { STORAGE_URLS, API_BASE_URL } from './config'
+import defaultPoster from '@/assets/poster.png'
 import moviesService from './services/moviesService'
 import authService from './services/authService'
 
@@ -88,22 +89,42 @@ export default {
       showUserMenu: false,
       searchQuery: '',
       searchTimer: null,
-      userRole: null
+      userRole: null,
+      token: localStorage.getItem('token') || null
     }
   },
   computed: {
     isLoggedIn() {
-      return !!localStorage.getItem('token')
+      return !!this.token
     },
     isAdmin() {
       return this.isLoggedIn && this.userRole === 'A'
     }
   },
   mounted() {
+    this.updateAuthState()
     this.fetchPopularMovies()
-    this.fetchUserRole()
+    if (this.isLoggedIn) this.fetchUserRole()
+    window.addEventListener('auth-changed', this.updateAuthState)
+    window.addEventListener('storage', this.updateAuthState)
+  },
+  beforeUnmount() {
+    window.removeEventListener('auth-changed', this.updateAuthState)
+    window.removeEventListener('storage', this.updateAuthState)
   },
   methods: {
+    updateAuthState() {
+      const t = localStorage.getItem('token') || null
+      const changed = t !== this.token
+      this.token = t
+      if (changed) {
+        if (this.token) {
+          this.fetchUserRole()
+        } else {
+          this.userRole = null
+        }
+      }
+    },
     async fetchPopularMovies() {
       try {
         const response = await moviesService.popular({ per_page: 20 })
@@ -138,7 +159,7 @@ export default {
     },
     resolvePoster(movie) {
       const p = movie.poster_path
-      if (!p) return STORAGE_URLS.NO_PHOTO
+      if (!p) return defaultPoster
       if (typeof p === 'string' && (p.startsWith('http://') || p.startsWith('https://'))) return p
       if (typeof p === 'string' && p.startsWith('/')) return `${API_ORIGIN}${p}`
       if (typeof p === 'string' && p.startsWith('storage/')) return `${API_ORIGIN}/${p}`
@@ -164,9 +185,11 @@ export default {
         await authService.logout()
       } catch (e) { console.error(e) }
       localStorage.removeItem('token')
+      this.token = null
       this.showUserMenu = false
       this.$router.push('/')
       this.userRole = null
+      window.dispatchEvent(new CustomEvent('auth-changed', { detail: { loggedIn: false } }))
     },
     async fetchUserRole() {
       if (!this.isLoggedIn) return

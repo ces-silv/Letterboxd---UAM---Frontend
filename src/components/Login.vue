@@ -80,7 +80,13 @@ export default {
       try {
         const response = await axios.post(API_ENDPOINTS.LOGIN, this.form)
         localStorage.setItem('token', response.data.token)
-        this.$router.push('/')
+        window.dispatchEvent(new CustomEvent('auth-changed', { detail: { loggedIn: true } }))
+        const redirect = this.$route.query.redirect
+        if (typeof redirect === 'string' && redirect.startsWith('/')) {
+          this.$router.push(redirect)
+        } else {
+          this.$router.push('/')
+        }
       } catch (error) {
         const response = error.response?.data
         if (response?.errors && typeof response.errors === 'object') {

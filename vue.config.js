@@ -2,8 +2,8 @@ const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   transpileDependencies: [],
   chainWebpack: (config) => {
-    ;['progress', 'progress-plugin', 'ProgressPlugin'].forEach((name) => {
-      try { config.plugins.delete(name) } catch (e) {}
+    ['progress', 'progress-plugin', 'ProgressPlugin'].forEach((name) => {
+      try { config.plugins.delete(name) } catch (e) { void e }
     })
   },
   configureWebpack: (config) => {

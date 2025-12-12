@@ -19,7 +19,9 @@ client.interceptors.response.use(
     if (status === 401) {
       localStorage.removeItem('token')
       if (window.location.pathname !== '/login') {
-        window.location.href = '/login'
+        const cur = window.location.pathname + window.location.search + window.location.hash
+        const q = encodeURIComponent(cur)
+        window.location.href = `/login?redirect=${q}`
       }
     }
     return Promise.reject(error)
