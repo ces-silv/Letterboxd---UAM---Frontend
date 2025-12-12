@@ -1,7 +1,8 @@
 import api from './apiClient'
 import { API_ENDPOINTS } from '../config'
 
-const createMovie = (data) => api.post(API_ENDPOINTS.MOVIES, data)
+const createMovie = (data) => api.post(API_ENDPOINTS.MOVIES, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+
 const deleteMovie = (id) => api.delete(`${API_ENDPOINTS.MOVIES}/${id}`)
 
 const listActors = (params = {}) => api.get(API_ENDPOINTS.ACTORS, { params })

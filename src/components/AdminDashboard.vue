@@ -11,7 +11,7 @@
     <section class="admin-content">
       <div v-if="activeSection === 'movies'">
         <h2>Películas</h2>
-        <form @submit.prevent="createMovie" class="form-grid">
+        <form @submit.prevent="createMovie" class="form-grid" enctype="multipart/form-data">
           <input v-model="form.title" type="text" placeholder="Título" required class="form-input" />
           <input v-model="form.release_date" type="date" placeholder="Fecha" required class="form-input" />
           <select v-model.number="form.director_id" required class="form-input">
@@ -20,6 +20,12 @@
           </select>
           <input v-model.number="form.duration" type="number" placeholder="Duración" required class="form-input" />
           <input v-model="form.synopsis" type="text" placeholder="Sinopsis" class="form-input" />
+           <input
+            type="file"
+            accept="image/*"
+            @change="onPosterChange"
+            class="form-input"
+          />
           <button type="submit" :disabled="creating" class="submit-btn">{{ creating ? 'Creando...' : 'Crear' }}</button>
         </form>
         <div v-if="error" class="error">{{ error }}</div>
@@ -126,7 +132,7 @@ export default {
       loading: true,
       error: null,
       creating: false,
-      form: { title: '', release_date: '', director_id: null, duration: null, synopsis: '' },
+      form: { title: '', release_date: '', director_id: null, duration: null, synopsis: '', poster: null },
       directors: [],
       directorsError: null,
       creatingDirector: false,
@@ -205,7 +211,15 @@ export default {
       this.creating = true
       this.error = null
       try {
-        await adminService.createMovie(this.form)
+        const fd = new FormData()
+        fd.append('title', this.form.title)
+        fd.append('release_date', this.form.release_date)
+        fd.append('director_id', String(this.form.director_id))
+        fd.append('duration', String(this.form.duration))
+        fd.append('synopsis', this.form.synopsis || '')
+        if (this.form.poster) fd.append('poster', this.form.poster)
+
+        await adminService.createMovie(fd)
         this.form = { title: '', release_date: '', director_id: null, duration: null, synopsis: '' }
         this.fetchMovies()
       } catch (e) {
@@ -213,6 +227,10 @@ export default {
       } finally {
         this.creating = false
       }
+    },
+    onPosterChange(e) {
+        const file = e.target.files && e.target.files[0] ? e.target.files[0] : null
+        this.form.poster = file
     },
     async createDirector() {
       this.creatingDirector = true
